@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 COPY . .
 RUN \
   apk add yarn && \
+  apk add python && \
   yarn install && \
   yarn build
 
