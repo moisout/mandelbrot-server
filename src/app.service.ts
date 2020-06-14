@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { name, version, author, country } from "../package.json";
-import { MandelbrotQuery } from "./query.interface";
-import { Canvas } from "canvas";
-import { createWriteStream } from "fs";
+import { Injectable } from '@nestjs/common';
+import { MandelbrotQuery } from './query.interface';
+import { Canvas } from 'canvas';
+import fs from 'fs';
+import path from 'path';
 
 @Injectable()
 export class AppService {
@@ -22,6 +22,7 @@ export class AppService {
     this.minX = query.minX;
     this.maxY = query.maxY;
     this.minY = query.minY;
+    console.log(query)
 
     return this.drawCanvas();
   }
@@ -44,12 +45,12 @@ export class AppService {
     const canvas = new Canvas(this.canvasWidth, this.canvasHeight);
     const canvasHeight = this.canvasHeight;
     const canvasWidth = this.canvasWidth;
-    const canvasContext = canvas.getContext("2d");
+    const canvasContext = canvas.getContext('2d');
     for (let pointX = 0; pointX <= canvasWidth; pointX++) {
       for (let pointY = 0; pointY <= canvasHeight; pointY++) {
         const { coordX, coordY } = this.getCoordinatesFromPoints(
           pointX,
-          pointY
+          pointY,
         );
 
         const color = this.calculatePointColor(coordX, coordY, this.iterations);
@@ -58,29 +59,23 @@ export class AppService {
         canvasContext.fillRect(pointX, pointY, 1, 1);
       }
     }
-    const url = `${this.uuidv4()}.png`;
-    const out = createWriteStream(__dirname, url),
-      stream = canvas.createPNGStream();
 
-    stream.on("data", (chunk) => {
-      out.write(chunk);
-    });
-    return url;
+    return canvas.toDataURL();
   }
 
   uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
-      c
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (
+      c,
     ) {
-      var r = (Math.random() * 16) | 0,
-        v = c == "x" ? r : (r & 0x3) | 0x8;
+      const r = (Math.random() * 16) | 0,
+        v = c == 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }
 
   calculatePointColor(c1: number, c2: number, iterations: number) {
-    let zX: number = 0;
-    let zY: number = 0;
+    let zX = 0;
+    let zY = 0;
 
     const duplicationArray = [];
 
@@ -106,8 +101,8 @@ export class AppService {
     }
 
     if (hasDuplication || (Math.abs(zX) <= 2 && Math.abs(zY) <= 2)) {
-      return "rgba(0,0,0,1)";
+      return 'rgba(0,0,0,1)';
     }
-    return "rgba(255,255,255,1)";
+    return 'rgba(255,255,255,1)';
   }
 }
